@@ -9,7 +9,7 @@ This project is for educational purposes only and should not be used to cause ha
 ## Quick Start
 Download its compiled version ["here"].
 
-["here"]: https://github.com/Arthurszzz/Copyro/releases/download/compiled/Copyro.exe
+["here"]: https://github.com/Arthurszzz/Copyro/releases/download/Compiled/copyro.exe
 
 ### Dependencies
 Make sure you have installed the dependencies:
