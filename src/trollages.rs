@@ -43,11 +43,8 @@ fn lmgtfy(keywords: &str) {
 }
 
 fn speak(phrase: &str) {
-    let command =  format!("Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('{}');", phrase);
-    let _child = Command::new("powershell")
-        .args(["/C", &command])
-        .output()
-        .unwrap();
+    let command =  format!("powershell -noprofile -command \"Add-Type –AssemblyName System.Speech; (New-Object System.Speech.Synthesis.SpeechSynthesizer).Speak('{}');\"", phrase);
+    let _ = execute_command(&command);
 }
 // used to make new ones
 
